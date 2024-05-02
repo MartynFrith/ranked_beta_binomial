@@ -7,8 +7,8 @@
 #SBATCH --nodes=8 # specify number of nodes
 #SBATCH --ntasks-per-node=16 # specify number of processors per node
 #SBATCH --mem=100G # specify bytes memory to reserve
-#SBATCH --error=log_files/deconvolution.err
-#SBATCH --output=log_files/deconvolution.out
+#SBATCH --error=log_files/synthesise_cfDNA.err
+#SBATCH --output=log_files/synthesise_cfDNA.out
 #SBATCH --mail-type=END # send email at job completion
 #SBATCH --mail-user=mjf221@exeter.ac.uk # email address
 
@@ -16,4 +16,4 @@ source /lustre/home/mjf221/.bashrc
 module load Anaconda3
 source activate /lustre/home/mjf221/.conda/envs/entropy_deconv
 
-python deconvolution.py 
+python synthesise_cfDNA.py 

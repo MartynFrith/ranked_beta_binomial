@@ -1,0 +1,36 @@
+NNLS initial coefficient estimation:
+[1.00000000e-100 1.00000000e-100 1.00000000e-100 1.00000000e-100
+ 8.18361577e-002 1.00000000e-100 3.71781680e-001 1.00000000e-100
+ 1.00000000e-100 1.00000000e-100 1.00000000e-100 6.01767096e-002
+ 1.00000000e-100 1.00000000e-100 1.00000000e-100 1.00000000e-100
+ 1.00000000e-100 6.08617197e-002 1.00000000e-100 1.48764358e-003
+ 1.00000000e-100 1.00000000e-100 1.00000000e-100 1.00000000e-100
+ 1.00000000e-100 1.00000000e-100 1.00000000e-100 1.00000000e-100
+ 1.00000000e-100 1.00000000e-100 3.14995705e-001 1.00000000e-100
+ 1.00000000e-100 1.00000000e-100 1.00000000e-100 1.00000000e-100
+ 1.00000000e-100 1.00000000e-100 5.50588283e-002]
+Minimisation ouput:
+  message: CONVERGENCE: NORM_OF_PROJECTED_GRADIENT_<=_PGTOL
+  success: True
+   status: 0
+      fun: -5.4234620014435784e+73
+        x: [-2.303e+02 -2.303e+02 ... -2.303e+02 -2.899e+00]
+      nit: 0
+      jac: [ 0.000e+00  0.000e+00 ...  0.000e+00  0.000e+00]
+     nfev: 40
+     njev: 1
+ hess_inv: <39x39 LbfgsInvHessProduct with dtype=float64>
+Final deconvoluted cell type proportions:
+[('Pancreas_Duct', 0.00), ('Epid_Kerat', 0.00), ('Endothel', 0.00),
+('Breast_Basal_Ep', 0.00), ('Liver_Hep', 0.08648942325719493), ('Colon_Fibro', 0.00),
+('Neuron', 0.3929214663818361), ('Ovary_Ep', 0.00), ('Skeletal_Musc', 0.00),
+('Pancreas_Beta', 0.00), ('Heart_Cardio', 0.00), ('Blood_Mono_Macro', 0.06359840261010365),
+('Heart_Fibro', 0.00), ('Small_Int_Ep', 0.00), ('Oligodend', 0.00),
+('Kidney_Ep', 0.00), ('Adipocytes', 0.00), ('Thyroid_Ep', 0.06432236293206699),
+('Smooth_Musc', 0.00), ('Colon_Ep', 0.0015722321180139706), ('Bone_Osteob', 0.00),
+('Lung_Ep_Bron', 0.00), ('Eryth_prog', 0.00), ('Blood_B', 0.00),
+('Fallopian_Ep', 0.00), ('Dermal_Fibro', 0.00), ('Lung_Ep_Alveo', 0.00)
+('Pancreas_Delta', 0.00), ('Pancreas_Alpha', 0.00), ('Gallbladder', 0.00),
+('Blood_Granul', 0.33290659798982053), ('Blood_T', 0.00), ('Pancreas_Acinar', 0.00),
+('Bladder_Ep', 0.00), ('Breast_Luminal_Ep', 0.00), ('Head_Neck_Ep', 0.00),
+('Gastric_Ep', 0.00), ('Prostate_Ep', 0.00), ('Blood_NK', 0.05818951471096385)]

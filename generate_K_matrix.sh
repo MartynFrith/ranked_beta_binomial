@@ -16,4 +16,4 @@ source /lustre/home/mjf221/.bashrc
 module load Anaconda3
 source activate /lustre/home/mjf221/.conda/envs/entropy_deconv
 
-python generate_k_matrix.py 
+python generate_K_matrix.py 
