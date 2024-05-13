@@ -2,6 +2,13 @@
 import numpy as np
 import pandas as pd
 import xarray as xr
+import sys
+
+synthesiser = sys.argv[1]
+muDNAm_ = sys.argv[2]
+cell_types_proportions = sys.argv[3]
+mu_rd = sys.argv[4]
+n_individuals = sys.argv[5]
 
 #%% CREATE DIRICHLET DISTRIBUTION OF CELL TYPE PROPORTIONS TO USE AS GROUND TRUTH 
 def generate_test_dirichlet(target_percentage, target_ct_ind):
@@ -22,12 +29,8 @@ def generate_test_dirichlet(target_percentage, target_ct_ind):
 
 
 
-#%% CREATE GROUND TRUTHS IF DONT HAVE THEM ALREADY
-target = 'Neuron'
-rmn_xr = xr.open_dataarray('data/rmn/rmn_hg38.nc')
-mu = 10
-sites = 100000
 
+#%% CREATE GROUND TRUTHS IF DONT HAVE THEM ALREADY
 def generate_ground_truth(target, rmn_xr, mu, sites):
     target_ct_ind = list(rmn_xr.coords['ct'].values).index(target)
     ground_truth = {}
@@ -56,8 +59,7 @@ def generate_ground_truth(target, rmn_xr, mu, sites):
 
 
 #%% SYNTHESIS CFDNA TO BE USED IN DECONVOLUTION TESTING 
-#Need to use the a K matrix for muDNAm, gives syntheised cfDNA data the same numbe of sites
-
+#Need to use the a K matrix for muDNAm, gives syntheised cfDNA data the same number of sites
 def synthesise_poisson(muDNAm_, cell_types_proportions = [], mu_rd = 10, n_individuals = 1):
     """
     Synthesize Cell Free DNA data following a Poisson distribution based on given methylation data and parameters.
@@ -72,7 +74,7 @@ def synthesise_poisson(muDNAm_, cell_types_proportions = [], mu_rd = 10, n_indiv
         list: Synthesized Poisson data.
     """
     n_sites = muDNAm_.shape[1]
-    weightedMean = sum([muDNAm_.loc[ct]*cell_types_proportions[i] 
+    weightedMean = sum([muDNAm_.loc[ct]*cell_types_proportions[i]/100 
                         for i, ct in enumerate(muDNAm_.coords['ct'].values)])
     synthesised = []
     for i in np.arange(n_individuals):
@@ -85,18 +87,58 @@ def synthesise_poisson(muDNAm_, cell_types_proportions = [], mu_rd = 10, n_indiv
 
 
 
-K_matrix = xr.open_dataarray('K_matrices/K_matrix_hg38_100k_10rds.nc') #data used called rmn in the original syntheise_cfDNA functions, but in the experiment 
-                                                                  #function the previosuly generated K matrix is used as the input
 
-muDNAm_ =  xr.open_dataarray('data/rmn/rmn_hg38.nc')
-cell_types_proportions = pd.read_csv('ground_truths/emperical_ground_truth.csv')
+#%%
+def synthesise_zero_inflated_poisson(muDNAm_, cell_types_proportions = [], mu_rd = 10, n_individuals = 1):
+    """
+    Synthesize  Cell Free DNA data following a Zero inflated Poisson distribution based on given methylation data and parameters.
+
+    Parameters:
+        muDNAm_ (xarray.DataArray): Methylation data.
+        cell_types_proportions (list): Proportions of cell types.
+        mu_rd (int): Mean read depth.
+        n_individuals (int): Number of individuals.
+
+    Returns:
+        list: Synthesized Poisson data with 5% zero counts.
+    """
+
+    pi = 5/100
+
+    n_sites = muDNAm_.shape[1]
+    weightedMean = sum([muDNAm_.loc[ct]*cell_types_proportions[i]/100 
+                        for i, ct in enumerate(muDNAm_.coords['ct'].values)])
+    synthesised = []
+
+    for i in np.arange(n_individuals):
+        bernoulli = np.random.binomial(1, 1-pi, n_sites)
+        poisson = np.random.poisson(lam=mu_rd, size=n_sites)
+        sample_rd = np.multiply(bernoulli, poisson)
+        dnam = np.random.binomial(n=sample_rd, p=weightedMean)
+        synData = np.array([dnam, sample_rd - dnam])
+        synthesised.append(synData)
+    return synthesised
+
+
+
+
+muDNAm_ = xr.open_dataarray(muDNA_m) 
+cell_types_proportions = pd.read_csv(cell_types_proportions)
 cell_types_proportions = list(cell_types_proportions['proportion'])
-mu_rd = 10
-n_individuals = 1
 
-synthesised_cfDNA = synthesise_poisson(muDNAm_= K_matrix, cell_types_proportions=cell_types_proportions, mu_rd=10, n_individuals=1)
-synthesised_cfDNA = pd.DataFrame(np.squeeze(synthesised_cfDNA))
-synthesised_cfDNA.to_csv('poisson_synthesised_cfDNA.txt', index=False)
+if synthesiser = 'synthesise_poisson' :
+    synthesised_cfDNA = synthesise_poisson(muDNAm_= muDNAm_, cell_types_proportions=cell_types_proportions, mu_rd=mu_rd, n_individuals=n_individuals)
+elif synthesiser = 'synthesise_zero_inflated_poisson'
+    synthesised_cfDNA = synthesise_zero_inflated_poisson(muDNAm_= muDNAm_, cell_types_proportions=cell_types_proportions, mu_rd=mu_rd, n_individuals=n_individuals)
+else:
+    print('Invalid synthesiser. Please choose either "synthesise_poisson" or "synthesise_zero_inflated_poisson".')
 
-
-# %%
+hg19 = 'hg19'
+hg38 = 'hg38'
+if hg19 in muDNAm_:
+    alignment = hg19
+elif hg38 in muDNAm_:
+    alignment = hg38
+else:
+    alignment = ''
+np.save('{}cfDNA_full_{}.npy'.format(synthesiser, alignment), synthesised_cfDNA)

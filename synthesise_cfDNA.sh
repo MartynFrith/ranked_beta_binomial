@@ -16,4 +16,16 @@ source /lustre/home/mjf221/.bashrc
 module load Anaconda3
 source activate /lustre/home/mjf221/.conda/envs/entropy_deconv
 
-python synthesise_cfDNA.py 
+#Can choose 'synthesise_poisson' or 'synthesise_zero_inflated_poisson'
+export SYNTHESISER='synthesise_zero_inflated_poisson'
+
+#Relative path to the K matrix to use to synthesise cfDNA (.nc). Recommended that a K matrix covering ALL CpG sites is used.
+export K_MATRIX='K_matrices/K_matrix_hg19_full.nc'
+
+#Relative path to the ground truth file to use to synthesise cfDNA (.csv)
+export GROUND_TRUTH='ground_truths/emperical_ground_truth_hg19.csv'
+
+export MEAN_READ_DEPTH=10
+export N_INDIVIDUALS=1
+
+python synthesise_cfDNA.py $SYNTHESISER $K_MATRIX $GROUND_TRUTH $MEAN_READ_DEPTH $N_INDIVIDUALS

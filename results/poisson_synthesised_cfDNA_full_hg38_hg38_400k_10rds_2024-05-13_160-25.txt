@@ -1,0 +1,21 @@
+NNLS initial coefficient estimation:
+[0.         0.         0.13124538 0.         0.04507598 0.
+ 0.00970763 0.00064334 0.         0.         0.         0.218667
+ 0.         0.         0.00007998 0.         0.00011589 0.00029102
+ 0.00175134 0.         0.00018401 0.         0.05677631 0.
+ 0.         0.00222885 0.         0.         0.         0.
+ 0.49915376 0.         0.         0.         0.         0.00025367
+ 0.         0.         0.03425016]
+Minimisation ouput:
+  message: CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH
+  success: True
+   status: 0
+      fun: -286763478.5673178
+        x: [-2.303e+02 -2.303e+02 ... -2.303e+02 -3.374e+00]
+      nit: 1
+      jac: [ 0.000e+00  0.000e+00 ...  0.000e+00 -1.192e+01]
+     nfev: 120
+     njev: 3
+ hess_inv: <39x39 LbfgsInvHessProduct with dtype=float64>
+Final deconvoluted cell type proportions:
+[('Pancreas_Duct', 9.989014492741367e-101), ('Epid_Kerat', 9.989014492741367e-101), ('Endothel', 0.13098114667005553), ('Breast_Basal_Ep', 9.989014492741367e-101), ('Liver_Hep', 0.04504296538859174), ('Colon_Fibro', 9.989014492741367e-101), ('Neuron', 0.0096916394750793), ('Ovary_Ep', 0.0006426308896527353), ('Skeletal_Musc', 9.989014492741367e-101), ('Pancreas_Beta', 9.989014492741367e-101), ('Heart_Cardio', 9.989014492741367e-101), ('Blood_Mono_Macro', 0.21830674990927076), ('Heart_Fibro', 9.989014492741367e-101), ('Small_Int_Ep', 9.989014492741367e-101), ('Oligodend', 7.989415566730784e-05), ('Kidney_Ep', 9.989014492741367e-101), ('Adipocytes', 0.00011576690910159147), ('Thyroid_Ep', 0.00029069705102665195), ('Smooth_Musc', 0.0017494144123662919), ('Colon_Ep', 9.989014492741367e-101), ('Bone_Osteob', 0.0001838103462137783), ('Lung_Ep_Bron', 9.989014492741367e-101), ('Eryth_prog', 0.056703546698846086), ('Blood_B', 9.989014492741367e-101), ('Fallopian_Ep', 9.989014492741367e-101), ('Dermal_Fibro', 0.002225997600687094), ('Lung_Ep_Alveo', 9.989014492741367e-101), ('Pancreas_Delta', 9.989014492741367e-101), ('Pancreas_Alpha', 9.989014492741367e-101), ('Gallbladder', 9.989014492741367e-101), ('Blood_Granul', 0.49951981729012146), ('Blood_T', 9.989014492741367e-101), ('Pancreas_Acinar', 9.989014492741367e-101), ('Bladder_Ep', 9.989014492741367e-101), ('Breast_Luminal_Ep', 9.989014492741367e-101), ('Head_Neck_Ep', 0.0002533906061917269), ('Gastric_Ep', 9.989014492741367e-101), ('Prostate_Ep', 9.989014492741367e-101), ('Blood_NK', 0.034212532597127976)]

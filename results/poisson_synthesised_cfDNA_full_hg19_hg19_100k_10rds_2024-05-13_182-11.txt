@@ -1,0 +1,21 @@
+NNLS initial coefficient estimation:
+[0.0015732  0.         0.12797183 0.         0.03582743 0.01249507
+ 0.00646195 0.         0.00119969 0.00211715 0.         0.20118732
+ 0.         0.00075203 0.         0.         0.0047895  0.
+ 0.         0.         0.         0.         0.04500589 0.01050318
+ 0.         0.0019187  0.         0.         0.         0.
+ 0.50177473 0.         0.         0.00993131 0.         0.
+ 0.         0.        ]
+Minimisation ouput:
+  message: CONVERGENCE: REL_REDUCTION_OF_F_<=_FACTR*EPSMCH
+  success: True
+   status: 0
+      fun: -229203615.54483217
+        x: [-6.454e+00 -2.303e+02 ... -2.303e+02 -2.303e+02]
+      nit: 5
+      jac: [ 0.000e+00  0.000e+00 ...  0.000e+00  0.000e+00]
+     nfev: 312
+     njev: 8
+ hess_inv: <38x38 LbfgsInvHessProduct with dtype=float64>
+Final deconvoluted cell type proportions:
+[('endocrine', 0.001592368889943214), ('basal_epithelial', 1.0119188213110369e-100), ('alpha', 0.10690511328882679), ('keratinocyte', 1.0119188213110369e-100), ('monocytes', 0.03747578627708621), ('macrophages', 0.012762079352458034), ('podocyte', 0.006491844272068556), ('t_cd3+_cells', 1.0119188213110369e-100), ('nk', 0.0012143470926240544), ('beta', 0.0021326317818672297), ('naive_t_cells_cd8', 1.0119188213110369e-100), ('t_effector_memory_cd4', 0.22503574856191036), ('acinar', 1.0119188213110369e-100), ('hepatocyte', 0.0007595605544930959), ('luminal_epithelial', 1.0119188213110369e-100), ('adipocytes', 1.0119188213110369e-100), ('delta', 0.004816232246891724), ('striated_muscle', 1.0119188213110369e-100), ('cardiomyocyte', 1.0119188213110369e-100), ('naive_t_cells_cd4', 1.0119188213110369e-100), ('endothelium', 1.0119188213110369e-100), ('t_central_memory_cd4', 1.0119188213110369e-100), ('white_blood_cells', 0.04677545217879), ('t_helpercd4+_cells', 0.010598972212013835), ('smooth_muscle', 1.0119188213110369e-100), ('b_cells', 0.0019411088299180989), ('osteoblasts', 1.0119188213110369e-100), ('duct', 1.0119188213110369e-100), ('fibroblast', 1.0119188213110369e-100), ('t_cytotoxic_cd8+_cells', 1.0119188213110369e-100), ('neuronal', 0.5314490886876633), ('epithelium', 1.0119188213110369e-100), ('oligodendrocytes', 1.0119188213110369e-100), ('t_effector_cell_cd8', 0.010049665773445508), ('memory_b_cells', 1.0119188213110369e-100), ('granulocytes', 1.0119188213110369e-100), ('erythrocyte_progenitors', 1.0119188213110369e-100), ('t_effector_memory_cd8', 1.0119188213110369e-100)]
