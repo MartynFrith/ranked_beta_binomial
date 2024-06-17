@@ -17,11 +17,10 @@ module load Anaconda3
 source activate /lustre/home/mjf221/.conda/envs/entropy_deconv
 
 
-# Argument 1: relative path to K_matrix
-export K_MATRIX='K_matrices/K_matrix_hg19_100k_10rds.nc'
+# Argument 1: relative path to K_matrix config file
+export K_MATRIX_CONFIG='K_matrices/K_matrix_config/cedric_0inflatedPoisResultsBased_Kmat_config_hg19_mode.csv'
 
-# Argument 2: relative path to cfDNA data 
-export CFDNA_FILE='cfDNA_files/poisson_synthesised_cfDNA_full_hg19.npy'
+# Argument 2: relative path to file containing the names of the cfDNA files to deconvolute
+export CFDNA_FILES='config/real_cfDNA_deconvolution/deconvolution_config.csv'
 
-
-python deconvolution.py $K_MATRIX $CFDNA_FILE
+python deconvolution.py $K_MATRIX_CONFIG $CFDNA_FILES

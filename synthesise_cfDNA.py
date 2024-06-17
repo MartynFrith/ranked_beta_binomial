@@ -3,12 +3,13 @@ import numpy as np
 import pandas as pd
 import xarray as xr
 import sys
+import re
 
 synthesiser = sys.argv[1]
-muDNAm_ = sys.argv[2]
+K_matrix = sys.argv[2]
 cell_types_proportions = sys.argv[3]
-mu_rd = sys.argv[4]
-n_individuals = sys.argv[5]
+mu_rd = float(sys.argv[4])
+n_individuals = int(sys.argv[5])
 
 #%% CREATE DIRICHLET DISTRIBUTION OF CELL TYPE PROPORTIONS TO USE AS GROUND TRUTH 
 def generate_test_dirichlet(target_percentage, target_ct_ind):
@@ -95,7 +96,7 @@ def synthesise_zero_inflated_poisson(muDNAm_, cell_types_proportions = [], mu_rd
 
     Parameters:
         muDNAm_ (xarray.DataArray): Methylation data.
-        cell_types_proportions (list): Proportions of cell types.
+        cell_types_proportions_df (list): Proportions of cell types.
         mu_rd (int): Mean read depth.
         n_individuals (int): Number of individuals.
 
@@ -106,7 +107,7 @@ def synthesise_zero_inflated_poisson(muDNAm_, cell_types_proportions = [], mu_rd
     pi = 5/100
 
     n_sites = muDNAm_.shape[1]
-    weightedMean = sum([muDNAm_.loc[ct]*cell_types_proportions[i]/100 
+    weightedMean = sum([muDNAm_.loc[ct]*cell_types_proportions_df[i]/100 
                         for i, ct in enumerate(muDNAm_.coords['ct'].values)])
     synthesised = []
 
@@ -115,30 +116,38 @@ def synthesise_zero_inflated_poisson(muDNAm_, cell_types_proportions = [], mu_rd
         poisson = np.random.poisson(lam=mu_rd, size=n_sites)
         sample_rd = np.multiply(bernoulli, poisson)
         dnam = np.random.binomial(n=sample_rd, p=weightedMean)
-        synData = np.array([dnam, sample_rd - dnam])
+        synData = np.array([dnam, sample_rd])
         synthesised.append(synData)
     return synthesised
 
 
 
+muDNAm_ = xr.open_dataarray(K_matrix) 
+cell_types_proportions_df = pd.read_csv(cell_types_proportions)
+cell_types_proportions_df = list(cell_types_proportions_df['proportion'])
 
-muDNAm_ = xr.open_dataarray(muDNA_m) 
-cell_types_proportions = pd.read_csv(cell_types_proportions)
-cell_types_proportions = list(cell_types_proportions['proportion'])
-
-if synthesiser = 'synthesise_poisson' :
+if synthesiser == 'synthesise_poisson' :
     synthesised_cfDNA = synthesise_poisson(muDNAm_= muDNAm_, cell_types_proportions=cell_types_proportions, mu_rd=mu_rd, n_individuals=n_individuals)
-elif synthesiser = 'synthesise_zero_inflated_poisson'
+    synthesiser_for_file = 'Pois'
+elif synthesiser == 'synthesise_zero_inflated_poisson':
     synthesised_cfDNA = synthesise_zero_inflated_poisson(muDNAm_= muDNAm_, cell_types_proportions=cell_types_proportions, mu_rd=mu_rd, n_individuals=n_individuals)
+    synthesiser_for_file = 'zeroInflatedPois'
 else:
     print('Invalid synthesiser. Please choose either "synthesise_poisson" or "synthesise_zero_inflated_poisson".')
 
 hg19 = 'hg19'
 hg38 = 'hg38'
-if hg19 in muDNAm_:
+if hg19 in str(K_matrix):
     alignment = hg19
-elif hg38 in muDNAm_:
+elif hg38 in K_matrix:
     alignment = hg38
 else:
     alignment = ''
-np.save('{}cfDNA_full_{}.npy'.format(synthesiser, alignment), synthesised_cfDNA)
+
+pattern = r'(\d+(\.\d+)?)percent'
+match = re.search(pattern, cell_types_proportions)
+target_ct_prop = match.group(1)
+
+for i in range(len(synthesised_cfDNA)):
+    df = synthesised_cfDNA[i]
+    np.save('S{}_{}_cfDNA_{}_{}%neu_{}rds.npy'.format(i, synthesiser_for_file, alignment, target_ct_prop, str(int(mu_rd))), df)

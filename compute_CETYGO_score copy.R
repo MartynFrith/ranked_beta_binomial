@@ -3,10 +3,11 @@ library(tidyverse)
 library(data.table)
 library(ncdf4) #for opening netcdf files
 ### SYS ARGS ###
+K_matrix_config <- read_csv("K_matrices/K_matrix_config/cedric_0inflatedPoisResultsBased_Kmat_config_hg19_mode.csv")
 
 ### OPEN BULK SEQUENCING DATA ###
-K_matrix_config <- read_csv("K_matrices/K_matrix_config/cedric_0inflatedPoisResultsBased_Kmat_config_hg19_mode.csv")
 betas <- list.files('cfDNA_files/loyfer_cfDNA', recursive=TRUE)
+betas <- betas[1:2]
 K_matrix_list <- list()
 tissue_name_list <- list()
 beta_matrix <- data.frame(nrows = 29152891) #if hg38
@@ -33,7 +34,7 @@ rownames(bulk_seq_data) <- as.character(1:nrow(beta_matrix))
 
 
 ### CALCULATE CETYGO SCORE ###
-predicted_cell_type_proportions <- read_csv("results/loyfer_realcfDNA_cedric_0inflatedPoisResultsBased_Kmat_config_hg19_mode_2024-06-13_1534-38.csv") #read in your deconvolution results file containing deconvoluted cell type proportions
+predicted_cell_type_proportions <- read_csv("results/UXMdefaultTop25_loyfer_realcfDNA_deconv_results.csv") #read in your deconvolution results file containing deconvoluted cell type proportions
 cetygo_score_vec <- vector()
 for (sample in seq(1:ncol(bulk_seq_data))){
     ### OPEN MODEL FILE (K MATRIX) ###
@@ -67,3 +68,39 @@ for (sample in seq(1:ncol(bulk_seq_data))){
 
 cetygo_results <- data.frame(sample = colnames(bulk_seq_data), CETYGO_score = cetygo_score_vec)
 write.table(cetygo_results, "bactydeMode_loyfer_real_cfDNA_cetygo_results.csv", sep = ',', quote = FALSE, row.names = FALSE, col.names = TRUE)
+
+
+
+
+predicted_cell_type_proportions <- read_csv("results/UXMdefaultTop25_loyfer_realcfDNA_deconv_results.csv") #read in your deconvolution results file containing deconvoluted cell type proportions
+cetygo_score_vec <- vector()
+for (sample in seq(1:ncol(bulk_seq_data))){
+    ### OPEN MODEL FILE (REFERENCE ATLAS) ###
+    atlas <- read_tsv('Atlas.U25.l4.hg19.tsv') #cell type deconvolution model reference matrix: rows are cpg sites, columns are cell types, contents are predicted methylation betas
+    reference_profile <- atlas[,predicted_cell_type_proportions$CellType]
+
+    ### CALCULATING PREDICTED BULK METHYLATION PROFILE ###
+    predicted_cell_type_proportions_t <- t(predicted_cell_type_proportions[,2:ncol(predicted_cell_type_proportions)])
+    colnames(predicted_cell_type_proportions_t) <- predicted_cell_type_proportions$CellType
+
+    product <- data.frame(nrow=nrow(reference_profile))
+    for(column in seq(ncol(predicted_cell_type_proportions_t))){
+        cell_type_k_product <- predicted_cell_type_proportions_t[sample,column] * reference_profile[,column]
+        product <- cbind(product, cell_type_k_product)
+    }
+    product[is.na(product)] <- 0 
+    predicted_bulk_profile <- rowSums(product[2:ncol(product)])
+
+    ### CALCULATE CETYGO SCORE ###
+    # may need to load in segment file to get methylation data on a block by block basis
+    observed_bulk_profile <- beta_matrix[,2:ncol(beta_matrix)]
+    observed_bulk_profile <- observed_bulk_profile[,sample]
+    observed_bulk_profile_filtered <- observed_bulk_profile[as.numeric(rownames(reference_profile))]
+
+    intermediate <- (observed_bulk_profile_filtered - predicted_bulk_profile)^2
+    intermediate_noNaN <- intermediate[!is.na(intermediate)]
+    cetygo_score <- sqrt(mean(intermediate_noNaN)) 
+    cetygo_score_vec <- c(cetygo_score_vec, cetygo_score)
+}
+
+beta_table <- as.data.frame(read.table("blocks.bed",header = FALSE, sep="\t",stringsAsFactors=FALSE, quote=""))

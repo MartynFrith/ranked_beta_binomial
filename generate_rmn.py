@@ -55,7 +55,7 @@ def process_ct(ct):
 
     ct_K.columns = ['chr', 'chr_ind', 'gen_ind'] #gen / gen_ind is cedric's term for cpg index 
     ct_K['r'] = rd
-    ct_K['n'] = n
+    ct_K['n'] = n #n is the number of missing reads 
     ct_K['m'] = dnam
     ct_K.to_csv("{}{}.csv".format(target, ct), index=False)
 

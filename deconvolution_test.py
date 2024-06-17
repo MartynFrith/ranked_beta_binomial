@@ -12,7 +12,7 @@ K_matrix_config_filename = sys.argv[1]
 cfDNA_data_filenames = pd.read_csv(sys.argv[2], index_col=False)
 cfDNA_data_filenames = cfDNA_data_filenames['filenames'].tolist()
 # K_matrix_config_filename = 'K_matrices/K_matrix_config/cedric_0_inflated_poisson_Kmat_config_hg38.csv'
-# cfDNA_data_filename = 'cfDNA_files/loyfer_cfdna_110033750.beta'
+# cfDNA_data_filenames = 'cfDNA_files/loyfer_cfDNA/GSM6810014_CNVS-NORM-110033633-cfDNA-WGBS-Rep1.beta'
 # cfDNA_data_filename = 'cfDNA_files/zero_inflated_poisson_cfDNA_full_hg38_30rds.npy'
 
 #%% READ CFDNA DATA
@@ -45,7 +45,7 @@ for file in cfDNA_data_filenames:
     read_depths = np.sum([data_methylated, data_not_methylated], axis=0)
 
 
-        #%% NNLS REGRESSION 
+    #%% NNLS REGRESSION 
     X = sampled_K * read_depths # X is represents the number of reads we would get at eahc site if there was no missingness in data based on our psuedo K
     y = data_methylated #Y is then the methylated read data that we actually recorded for in the cfDNA at each site in the methylome
     reg = LinearRegression(positive=True).fit(X.T, y) #compute NNLS regression of our X against our Y
