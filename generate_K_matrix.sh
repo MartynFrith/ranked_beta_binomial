@@ -20,7 +20,7 @@ export RMN='data/rmn/rmn_hg38.nc'
 export TARGET='Neuron' #Neuron for hg38, neuronal for hg19
 export MIN_SAMPLES=0
 export MIN_RD=10
-export MEDIAN_OR_MODE='median'
+export MEDIAN_OR_MODE='mode'
 
 export N_SITES=100000
 python generate_K_matrix.py $RMN $TARGET $MIN_SAMPLES $MIN_RD $N_SITES $MEDIAN_OR_MODE
