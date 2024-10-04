@@ -14,19 +14,21 @@
 
 source /lustre/home/mjf221/.bashrc
 module load Anaconda3
-source activate /lustre/home/mjf221/.conda/envs/entropy_deconv
+source activate /lustre/home/mjf221/.conda/envs/RBB
 
-#Can choose 'synthesise_poisson' or 'synthesise_zero_inflated_poisson'
-export SYNTHESISER='synthesise_zero_inflated_poisson'
+# Argument 1: Can choose 'synthesise_poisson' or 'synthesise_zero_inflated_poisson'. NOTE! Baseline percentage of zeros is ~5% due to missing sites in reference matrix data
+export SYNTHESISER='synthesise_poisson'
 
-#Relative path to the K matrix to use to synthesise cfDNA (.nc). Recommended that a K matrix covering ALL CpG sites is used.
+# Argument 2: Relative path to the K matrix to use to synthesise cfDNA (.nc). Recommended that a K matrix covering ALL CpG sites is used.
 export K_MATRIX='K_matrices/K_matrix_hg38_full.nc'
 
-#Relative path to the ground truth file to use to synthesise cfDNA (.csv)
+# Argument 3: Relative path to the ground truth file to use to synthesise cfDNA (.csv)
 export GROUND_TRUTH='ground_truths/emperical_ground_truth_1percent_neuron_hg38.csv'
 
-#Mean read depth across the synthetic cfDNA to use 
+# Argument 4: Mean read depth across the synthetic cfDNA to use 
 export MEAN_READ_DEPTH=30
+
+# Argument 5: Number of cfDNA samples to synthesise
 export N_INDIVIDUALS=10
 
 python synthesise_cfDNA.py $SYNTHESISER $K_MATRIX $GROUND_TRUTH $MEAN_READ_DEPTH $N_INDIVIDUALS

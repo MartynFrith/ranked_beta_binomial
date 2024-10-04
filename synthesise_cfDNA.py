@@ -4,7 +4,12 @@ import pandas as pd
 import xarray as xr
 import sys
 import re
-
+### NEED TO MODIFY SYNTHESISER SO IF THERE IS NAN THE SYNTHESISER CAN PROCEED. NAN RESULTS FROM SITES WITH NO READS IN RMN. 
+### WHEN PASSED THROUGH K MATRIX GENERATION SCRIPT THERE IS A STEP WHERE METH READS ARE DIVIDED BY TOTAL READS, BUT IF THERE ARE 0
+### TOTAL READS THEN THE CALCULATION WILL BE 0/0 = NaN. THIS IS FINE FOR K MATRICES AS THEY SELECT SITES BASED ON ENTROPY AND SO SITES
+### THAT HAVE NO DATA, I.E. NO READS AND THERFORE NaN SITES, SHOULD BE EXCLUDED FROM RANKING. BUT WHEN SYNTHESISING CFDNA WE SHOULD 
+### AIM TO REPLICATE REAL SEQUENCING DATA IN WHICH NaN DOES NOT EXIST. SITES WITH NaN SHOULD BE REPRESENTED AS 0 TOTAL READS AND 0 METHYLATED READS
+### IN THE FINAL SYNTHEISED CFDNA
 synthesiser = sys.argv[1]
 K_matrix = sys.argv[2]
 cell_types_proportions = sys.argv[3]
@@ -77,14 +82,19 @@ def synthesise_poisson(muDNAm_, cell_types_proportions = [], mu_rd = 10, n_indiv
     n_sites = muDNAm_.shape[1]
     weightedMean = sum([muDNAm_.loc[ct]*cell_types_proportions[i]/100 
                         for i, ct in enumerate(muDNAm_.coords['ct'].values)])
+    nan_indices = np.where(np.isnan(weightedMean.values))
+    weightedMean[nan_indices] = 0
     synthesised = []
+
     for i in np.arange(n_individuals):
         sample_rd = np.random.poisson(lam=mu_rd, size=n_sites)
         dnam = np.random.binomial(n=sample_rd, p=weightedMean)
         synData = np.array([dnam, sample_rd]) #used to be np.array([dnam, sample_rd - dnam]) but this would produce
-                                              #an array with meth and unmeth reads, not an array with meth and read depth
-        synthesised.append(synData)           #so changed this to what it is currently 
-    return synthesised
+                                                #an array with meth and unmeth reads, not an array with meth and read depth
+        synData[1,nan_indices]=0
+        synthesised.append(synData)  
+        percent_zeros = 100*(synData[1,][synData[1,]==0].shape[0] / n_sites)         #so changed this to what it is currently 
+    return synthesised, percent_zeros
 
 
 
@@ -104,11 +114,14 @@ def synthesise_zero_inflated_poisson(muDNAm_, cell_types_proportions = [], mu_rd
         list: Synthesized Poisson data with 5% zero counts.
     """
 
-    pi = 5/100
+    pi = 5/100 #additional pecercentage of zeros to add
 
     n_sites = muDNAm_.shape[1]
-    weightedMean = sum([muDNAm_.loc[ct]*cell_types_proportions_df[i]/100 
-                        for i, ct in enumerate(muDNAm_.coords['ct'].values)])
+    weightedMean = sum([muDNAm_.loc[ct]*cell_types_proportions[i]/100 
+                    for i, ct in enumerate(muDNAm_.coords['ct'].values)])
+    ## set all sites that are NaN in weighted mean to 0 and save their indices
+    nan_indices = np.where(np.isnan(weightedMean.values))
+    weightedMean[nan_indices] = 0
     synthesised = []
 
     for i in np.arange(n_individuals):
@@ -117,20 +130,22 @@ def synthesise_zero_inflated_poisson(muDNAm_, cell_types_proportions = [], mu_rd
         sample_rd = np.multiply(bernoulli, poisson)
         dnam = np.random.binomial(n=sample_rd, p=weightedMean)
         synData = np.array([dnam, sample_rd])
-        synthesised.append(synData)
-    return synthesised
+        synData[1,nan_indices]=0 # by setting the second column of syndata to 0 at each site featuring a NaN in the K matrix we make it so these sites
+        synthesised.append(synData) # are represented as 0 total reads and 0 methylated reads in the synthetic cfDNA, reflected the fact these sites were missing 
+        percent_zeros = 100*(synData[1,][synData[1,]==0].shape[0] / n_sites)# in the sequencing data that makes up the reference matrix
+    return synthesised, percent_zeros             
 
 
 
 muDNAm_ = xr.open_dataarray(K_matrix) 
 cell_types_proportions_df = pd.read_csv(cell_types_proportions)
-cell_types_proportions_df = list(cell_types_proportions_df['proportion'])
+cell_types_proportions_list = list(cell_types_proportions_df['proportion'])
 
 if synthesiser == 'synthesise_poisson' :
-    synthesised_cfDNA = synthesise_poisson(muDNAm_= muDNAm_, cell_types_proportions=cell_types_proportions, mu_rd=mu_rd, n_individuals=n_individuals)
+    synthesised_cfDNA = synthesise_poisson(muDNAm_= muDNAm_, cell_types_proportions=cell_types_proportions_list, mu_rd=mu_rd, n_individuals=n_individuals)
     synthesiser_for_file = 'Pois'
 elif synthesiser == 'synthesise_zero_inflated_poisson':
-    synthesised_cfDNA = synthesise_zero_inflated_poisson(muDNAm_= muDNAm_, cell_types_proportions=cell_types_proportions, mu_rd=mu_rd, n_individuals=n_individuals)
+    synthesised_cfDNA = synthesise_zero_inflated_poisson(muDNAm_= muDNAm_, cell_types_proportions=cell_types_proportions_list, mu_rd=mu_rd, n_individuals=n_individuals)
     synthesiser_for_file = 'zeroInflatedPois'
 else:
     print('Invalid synthesiser. Please choose either "synthesise_poisson" or "synthesise_zero_inflated_poisson".')
@@ -145,9 +160,11 @@ else:
     alignment = ''
 
 pattern = r'(\d+(\.\d+)?)percent'
-match = re.search(pattern, cell_types_proportions)
+match = re.search(pattern, sys.argv[3])
 target_ct_prop = match.group(1)
+target_ct_prop = re.sub('\\.', '' , target_ct_prop)
+percent_zeros = round(synthesised_cfDNA[1]) # type: ignore
 
-for i in range(len(synthesised_cfDNA)):
-    df = synthesised_cfDNA[i]
-    np.save('S{}_{}_cfDNA_{}_{}%neu_{}rds.npy'.format(i, synthesiser_for_file, alignment, target_ct_prop, str(int(mu_rd))), df)
+for i in range(len(synthesised_cfDNA[0])):
+    df = synthesised_cfDNA[0][i]
+    np.save('S{}_{}_cfDNA_{}_{}%neu_{}rds_{}%zeros.npy'.format(i, synthesiser_for_file, alignment, target_ct_prop, str(int(mu_rd)), percent_zeros), df)

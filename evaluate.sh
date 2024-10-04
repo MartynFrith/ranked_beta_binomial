@@ -4,7 +4,7 @@
 #SBATCH -p mrcq # submit to the parallel queue
 #SBATCH --time=06:00:00 # maximum walltime for the job
 #SBATCH -A Research_Project-MRC190311 # research project to submit under
-#SBATCH --nodes=4 # specify number of nodes
+#SBATCH --nodes=1 # specify number of nodes
 #SBATCH --ntasks-per-node=16 # specify number of processors per node
 #SBATCH --mem=100G # specify bytes memory to reserve
 #SBATCH --error=log_files/evaluate.err
@@ -14,11 +14,11 @@
 
 source /lustre/home/mjf221/.bashrc
 module load Anaconda3
-source activate /lustre/home/mjf221/.conda/envs/entropy_deconv
+source activate /lustre/home/mjf221/.conda/envs/rbb
 
 #Argument 1
 #Relative path to deconvolution results file 
-export DECONVOLUTION_RESULTS='results/10_sample_variable_neuronal_proportion_ZeroInflatedPois_cfDNA_10_20_30rds.csv'
+export DECONVOLUTION_RESULTS='results/mjf221/deconvolution_results'
 
 #Argument 2
 #Relative path to evaluation config file. Should contain 2 columns:
