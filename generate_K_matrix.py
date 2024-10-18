@@ -43,7 +43,7 @@ entropy_mask = np.isin(np.arange(entropy_rank.shape[0]), sel) #Entropy masked. c
 m = selection.loc[:,:,'m']
 r = selection.loc[:,:,'r']
 if median_or_mode == 'median':
-    K_matrix =  xr.DataArray(beta_distribution.mode(1 + m, 1 + (r - m)), #I changed to median so each version of K matrix has only one probability at each site in
+    K_matrix =  xr.DataArray(beta_distribution.mode(1 + m, 1 + (r - m)), #changed to median so each version of K matrix has only one probability at each site in
                              dims = ('ct', 'gen'), 
                              coords = {'ct': selection.coords['ct'], # each cell type
                                        'gen':selection.coords['gen']})

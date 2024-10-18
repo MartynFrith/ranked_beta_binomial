@@ -5,13 +5,13 @@ library(ncdf4) #for opening netcdf files
 ### SYS ARGS ###
 
 ### OPEN BULK SEQUENCING DATA ###
-K_matrix_config <- read_csv("K_matrices/K_matrix_config/cedric_0inflatedPoisResultsBased_Kmat_config_hg19_mode.csv")
-betas <- list.files('cfDNA_files/loyfer_cfDNA', recursive=TRUE)
+K_matrix_config <- read_csv("K_matrices/K_matrix_config/TestingBased_Kmat_config_hg38_mode.csv")
+betas <- list.files('bulk_seq_data/example_project', recursive=TRUE)
 K_matrix_list <- list()
 tissue_name_list <- list()
 beta_matrix <- data.frame(nrows = 29152891) #if hg38
 for (file in betas){
-    fname <- paste0('cfDNA_files/loyfer_cfDNA/',file)
+    fname <- paste0('bulk_seq_data/example_project',file)
     N <- file.info(fname)$size
     df <- matrix(readBin(fname, "integer", N, size = 1, signed = FALSE), N / 2, 2, byrow=TRUE)
     
@@ -33,7 +33,7 @@ rownames(bulk_seq_data) <- as.character(1:nrow(beta_matrix))
 
 
 ### CALCULATE CETYGO SCORE ###
-predicted_cell_type_proportions <- read_csv("results/loyfer_realcfDNA_cedric_0inflatedPoisResultsBased_Kmat_config_hg19_mode_2024-06-13_1534-38.csv") #read in your deconvolution results file containing deconvoluted cell type proportions
+predicted_cell_type_proportions <- read_csv("results/example_project/deconvolution_results/example_results.csv") #read in your deconvolution results file containing deconvoluted cell type proportions
 cetygo_score_vec <- vector()
 for (sample in seq(1:ncol(bulk_seq_data))){
     ### OPEN MODEL FILE (K MATRIX) ###
@@ -66,4 +66,4 @@ for (sample in seq(1:ncol(bulk_seq_data))){
 }
 
 cetygo_results <- data.frame(sample = colnames(bulk_seq_data), CETYGO_score = cetygo_score_vec)
-write.table(cetygo_results, "bactydeMode_loyfer_real_cfDNA_cetygo_results.csv", sep = ',', quote = FALSE, row.names = FALSE, col.names = TRUE)
+write.table(cetygo_results, "example_cetygo_results.csv", sep = ',', quote = FALSE, row.names = FALSE, col.names = TRUE)

@@ -12,11 +12,8 @@ cols = ['sample', 'r2', 'mse', '1- xvar', 'xmse']
 
 results_filename = sys.argv[1]
 results = pd.read_csv(results_filename)
-# results_filename  = 'results/10_sample_variable_neuronal_proportion_ZeroInflatedPois_cfDNA.csv'
-# results = pd.read_csv(results_filename)
 
 ground_truth_files = pd.read_csv(sys.argv[2])
-# ground_truth_files = pd.read_csv('config/neu_percentage_deconv_comparisons/evaluate_config.csv')
 
 
 col_names = results.columns[1:results.shape[1]]

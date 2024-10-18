@@ -6,9 +6,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 
-path = "/lustre/home/mjf221/entropy_deconv/" #path to the project folder 
-source = "/lustre/home/mjf221/entropy_deconv/data/betas/" #path to the parent  containing all .beta files
-target = "/lustre/home/mjf221/entropy_deconv/processed_genome_rnm/" #path to output script to
+path = "/ranked_beta_binomial/" #path to the project folder 
+source = "/ranked_beta_binomial/reference_data/tissue_betas/" #path to the parent  containing all .beta files
+target = "/ranked_beta_binomial/reference_data/processed_genome_rnm/" #path to output script to
 
 
 try:
@@ -21,7 +21,7 @@ os.mkdir(target) # and then either way makes a new directory using the path give
 
 
 ## load CpG location info
-cpgFile = "/lustre/projects/Research_Project-MRC190311/software/wgbs_tools/references/hg38/CpG.bed.gz" #Cedric originally used hg19 but have changed to hg38 
+cpgFile = "home/wgbs_tools/references/hg38/CpG.bed.gz" #Cedric originally used hg19 but have changed to hg38 
 cpgLoci = pd.read_csv(cpgFile, sep = "\t", header = None)                                              #to match hg38.beta files that I am using. Difference 
                                                                                                        #is ~1 million more CpGs in hg38 compared hg19
 
@@ -68,7 +68,7 @@ for ct in os.listdir(source):
 
 #%% CREATE XARRAY OF SYNTHESISED DATA TABLE
 import xarray as xr
-target = '/lustre/home/mjf221/entropy_deconv/processed_genome_rnm/'
+target = '/ranked_beta_binomial/reference_data/processed_genome_rnm/'
 files = os.listdir(target)
 
 
@@ -82,6 +82,6 @@ rmn = xr.DataArray(dims=("ct", "gen", "v"), coords={"ct" : list(rmn_d.keys()), "
 for ct in list(rmn_d.keys()):
     print(ct)
     rmn.loc[ct] = rmn_d[ct].loc[:, ('r', 'm', 'n')]
-rmn.to_netcdf('rmn_hg38.nc') 
+rmn.to_netcdf('rmn_hg38.nc') #give rmn name
 print('Generated rmn.nc')
 # %%

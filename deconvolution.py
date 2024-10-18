@@ -13,9 +13,6 @@ cfDNA_data_filenames = pd.read_csv(sys.argv[2], index_col=False)
 cfDNA_data_filenames = cfDNA_data_filenames['filenames'].tolist()
 output_folder = sys.argv[3]
 deconv_res_file_name = sys.argv[4]
-# K_matrix_config_filename = 'K_matrices/K_matrix_config/cedric_0inflatedPoisResultsBased_Kmat_config_hg38_mode.csv'
-# cfDNA_data_filenames = 'cfDNA_files/loyfer_cfDNA/GSM6810014_CNVS-NORM-110033633-cfDNA-WGBS-Rep1.beta'
-# cfDNA_data_filename = 'cfDNA_files/zero_inflated_poisson_cfDNA_full_hg38_30rds.npy'
 
 #%% READ CFDNA DATA
 dataframes = []
