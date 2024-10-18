@@ -1,20 +1,8 @@
 #!/bin/sh
-#SBATCH --export=ALL # export all environment variables to the batch job
-#SBATCH -D /lustre/home/mjf221/entropy_deconv
-#SBATCH -p mrcq # submit to the parallel queue
-#SBATCH --time=06:00:00 # maximum walltime for the job
-#SBATCH -A Research_Project-MRC190311 # research project to submit under
-#SBATCH --nodes=1 # specify number of nodes
-#SBATCH --ntasks-per-node=16 # specify number of processors per node
-#SBATCH --mem=100G # specify bytes memory to reserve
-#SBATCH --error=log_files/synthesise_cfDNA.err
-#SBATCH --output=log_files/synthesise_cfDNA.out
-#SBATCH --mail-type=END # send email at job completion
-#SBATCH --mail-user=mjf221@exeter.ac.uk # email address
-
-source /lustre/home/mjf221/.bashrc
+#Slurm commands
+source home/.bashrc
 module load Anaconda3
-source activate /lustre/home/mjf221/.conda/envs/RBB
+source activate home/.conda/envs/rbb
 
 # Argument 1: Can choose 'synthesise_poisson' or 'synthesise_zero_inflated_poisson'. NOTE! Baseline percentage of zeros is ~5% due to missing sites in reference matrix data
 export SYNTHESISER='synthesise_poisson'
