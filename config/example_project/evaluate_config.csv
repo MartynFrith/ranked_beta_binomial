@@ -1,0 +1,7 @@
+target_ct_proportion,ground_truth_file
+5%,ground_truths/emperical_ground_truth_5percent_neuron_hg38.csv
+1%,ground_truths/emperical_ground_truth_1percent_neuron_hg38.csv
+05%,ground_truths/emperical_ground_truth_0.5percent_neuron_hg38.csv
+01%,ground_truths/emperical_ground_truth_0.1percent_neuron_hg38.csv
+005%,ground_truths/emperical_ground_truth_0.05percent_neuron_hg38.csv
+001%,ground_truths/emperical_ground_truth_0.01percent_neuron_hg38.csv
