@@ -1,24 +1,13 @@
 #!/bin/sh
-#SBATCH --export=ALL # export all environment variables to the batch job
-#SBATCH -D /lustre/home/mjf221/entropy_deconv
-#SBATCH -p mrcq # submit to the parallel queue
-#SBATCH --time=06:00:00 # maximum walltime for the job
-#SBATCH -A Research_Project-MRC190311 # research project to submit under
-#SBATCH --nodes=1 # specify number of nodes
-#SBATCH --ntasks-per-node=16 # specify number of processors per node
-#SBATCH --mem=100G # specify bytes memory to reserve
-#SBATCH --error=log_files/evaluate.err
-#SBATCH --output=log_files/evaluate.out
-#SBATCH --mail-type=END # send email at job completion
-#SBATCH --mail-user=mjf221@exeter.ac.uk # email address
-
-source /lustre/home/mjf221/.bashrc
+#Slurm commands
+source home/.bashrc
 module load Anaconda3
-source activate /lustre/home/mjf221/.conda/envs/rbb
+source activate home/.conda/envs/rbb
+
 
 #Argument 1
 #Relative path to deconvolution results file 
-export DECONVOLUTION_RESULTS='results/mjf221/deconvolution_results'
+export DECONVOLUTION_RESULTS='results/example_project/deconvolution_results'
 
 #Argument 2
 #Relative path to evaluation config file. Should contain 2 columns:
@@ -30,6 +19,6 @@ export DECONVOLUTION_RESULTS='results/mjf221/deconvolution_results'
 #       1%                  , ground_truths/neuron_1%_ground_truth.csv
 #       01%                 , ground_truths/neuron_0.1%_ground_truth.csv
 
-export EVALUATION_CONFIG='config/neu_percentage_deconv_comparisons/evaluate_config.csv'
+export EVALUATION_CONFIG='config/example_project/neu_percentage_deconv_comparisons/evaluate_config.csv'
 
 python evaluate.py $DECONVOLUTION_RESULTS $EVALUATION_CONFIG
