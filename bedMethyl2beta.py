@@ -1,42 +1,32 @@
 import numpy as np
 import pandas as pd 
-import multiprocessing as mp
 
-bedMethyl = pd.read_csv('bulk_seq_data/ONT_cfDNA/P20018_N27_primary_alignments_hg38v2.bed', sep='\t', header=None)
-header = ['chrom', 'chromStart', 'chromEnd', 'mod', 'score', 'strand', 'startPos', 'endPos', 'color', 
-          'nCov', 'percentMod', 'nMod', 'nCanon', 'nOtherMod', 'nDel', 'nFail', 'nDiff', 'nNoCall']
+
+cpg_idx = pd.read_csv('reference_data/CpG.bed', sep='\t', header=None)
+cpg_idx.loc[:, 'id']  = (cpg_idx.iloc[:, 0].astype(str) + ':' + cpg_idx.iloc[:, 1].astype(str)).tolist()
+cpg_idx = cpg_idx.iloc[:,2:4]
+
+bedMethyl = pd.read_csv('P20018_N27_primary_alignments_hg38v2_trad.bed', sep='\t', header=None, usecols = [0,1,2,5,9,11])
+header = ['chrom', 'chromStart', 'chromEnd','strand', 'nCov', 'nMod']
 bedMethyl.columns = header[:len(bedMethyl.columns)]
+reverse_mask = bedMethyl['strand'] == '-'  
+bedMethyl.loc[reverse_mask, 'chromEnd'] -= 1 
+bedMethyl.loc[:, 'id']  = (bedMethyl.iloc[:, 0].astype(str) + ':' + bedMethyl.iloc[:, 2].astype(str)).tolist()
 
 
-for i in range(0, len(bedMethyl)):
-    if bedMethyl.loc[i, 'strand'] == '-':
-        bedMethyl.loc[i, 'chromStart'] = bedMethyl.loc[i, 'chromStart'] - 1 
+bedMethyl_agg = bedMethyl.groupby('id', as_index=False).agg({'nMod': 'sum', 'nCov': 'sum'})
+bedMethyl_agg = pd.merge(bedMethyl_agg, cpg_idx, how='left', on='id')
 
-bedMethyl.loc[:, 'id']  = (bedMethyl.iloc[:, 0].astype(str) + ':' + bedMethyl.iloc[:, 1].astype(str)).tolist()
-
-####cpg idx on to end ####
-
-def retrieve_beta(args):
-    i, bedMethyl, rowsPerTask = args 
-    chunk_start = round((i-1)*rowsPerTask)
-    chunk_end = round(i * rowsPerTask)
-    chunk = bedMethyl.iloc[chunk_start:chunk_end, :]
-    wgbs_list = []
-    for current_idx, group in chunk.groupby('id'):
-        nMod_sum = group['nMod'].sum()
-        nCov_sum = group['nCov'].sum()
-        wgbs_list.append([current_idx, nMod_sum, nCov_sum])
-    return pd.DataFrame(wgbs_list, columns=['id', 'nMod_sum', 'nCov_sum'])
+bedMethyl_agg.to_csv('P20018_N27_primary_alignments_hg38v2.beta', sep='\t', header=None)
 
 
-if __name__ == '__main__':
-    avail_cores = mp.cpu_count()
-    rowsPerTask = len(bedMethyl) / avail_cores
-    args = [(i, bedMethyl, rowsPerTask) for i in range(1, avail_cores + 1)]
-    with mp.Pool(processes=avail_cores) as pool:
-        wgbs_chunks = pool.map(retrieve_beta, args)
-    wgbs_df = pd.concat(wgbs_chunks, ignore_index=True)
-    wgbs_df = wgbs_df.drop_duplicates()
-    print(wgbs_df)
 
-wgbs_df.to_csv('P20018_N27_primary_alignments_hg38v2.beta', sep='\t', header=None)
+
+bedMethyl_merge = pd.merge(bedMethyl, cpg_idx, how='left', on='id')
+bedMethyl_idxs_only = bedMethyl_merge[bedMethyl_merge[2].notna()]
+bedMethyl_agg = bedMethyl_idxs_only.groupby('id', as_index=False).agg({'nMod': 'sum', 'nCov': 'sum'})
+
+
+bedMethyl[bedMethyl['id'] =='chr1:10577']
+cpg_idx['id'].isin(bedMethyl['id']).all()
+not_in_bedMethyl = cpg_idx.loc[~cpg_idx['id'].isin(bedMethyl['id']), 'id'].tolist()
