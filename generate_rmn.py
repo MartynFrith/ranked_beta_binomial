@@ -2,14 +2,13 @@ import os
 import numpy as np
 import pandas as pd
 import xarray as xr
-from scipy.stats import beta as beta_distribution
+
 
 def read_file(betaPath, filename):
     content = np.fromfile(os.path.join(betaPath, filename), dtype=np.uint8).reshape((-1, 2)) 
     dnam = pd.DataFrame({'dnam': np.where(content[:, 1] >= 1,  content[:, 0], 0), 'rd': content[:, 1]})
     return(dnam)
     
-
 def process_ct(ct):
     betaPath = '{}{}/'.format(source, ct)
     betaFiles = os.listdir(betaPath)
@@ -29,14 +28,11 @@ def process_ct(ct):
     ct_K.to_csv("{}{}.csv".format(target, ct), index=False)
 
 
-
 # USER ARGUMENTS
-source = "/lustre/home/mjf221/ranked_beta_binomial/reference_data/betas/" #path to the parent  containing all .beta files
-target = "/lustre/home/mjf221/ranked_beta_binomial/reference_data/processed_genome_rnm/" #path to output script to
-cpgFile = "reference_data/CpG.bed" 
+source = "/ranked_beta_binomial/reference_data/betas/" #path to the parent  containing all .beta files
+target = "/ranked_beta_binomial/reference_data/processed_genome_rnm/" #path to output script to
+cpgFile = "/ranked_beta_binomial/reference_data/CpG.bed" 
 rmn_filename = "rmn_hg38"
-k_matrix_filename = "k_matrix_hg38"
-
 
 # CHECK DIRECTORIES 
 try:
@@ -46,7 +42,6 @@ try:
 except:
     pass 
 os.mkdir(target)
-
 
 # LOAD CPG REFERENCE AND CELL TYPE SPECIFIC SEQUENCING DATA 
 cpgLoci = pd.read_csv(cpgFile, sep = "\t", header = None, names = ["CHR","START","END"], dtype={"CHR": str, "START":int, "END":int})                                                                                             
@@ -64,15 +59,3 @@ for ct in list(rmn_d.keys()):
     print(ct)
     rmn.loc[ct] = rmn_d[ct].loc[:, ('r', 'm', 'n')]
 rmn.to_netcdf(f'{rmn_filename}.nc') 
-
-
-# CREATE K MATRIX (REFERENCE MATRIX)
-m = rmn.loc[:,:,'m']
-r = rmn.loc[:,:,'r']
-k_matrix =  xr.DataArray(beta_distribution.median(1 + m, 1 + (r - m)), 
-                        dims = ('ct', 'gen'), 
-                        coords = {'ct': rmn.coords['ct'], 
-                                    'gen':rmn.coords['gen']})
-k_matrix.to_netcdf(f'{k_matrix_filename}.nc')
-
-
